@@ -6,6 +6,8 @@
 // package by whynotmake-it team (https://github.com/whynotmake-it/flutter_liquid_glass).
 // Used under MIT License.
 
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
 /// Shared physics and animation utilities for draggable indicators.
@@ -233,31 +235,9 @@ class DraggableIndicatorPhysics {
     if (currentRelativeX < 0) return 0;
     if (currentRelativeX > 1) return itemCount - 1;
 
-    if (velocityX.abs() > velocityThreshold) {
-      // High velocity - project where we would end up
-      final projectedX =
-          (currentRelativeX + velocityX * projectionTime).clamp(0.0, 1.0);
-      var targetIndex =
-          (projectedX / itemWidth).round().clamp(0, itemCount - 1);
-
-      // Ensure we move at least one item with strong velocity
-      final currentIndex =
-          (currentRelativeX / itemWidth).round().clamp(0, itemCount - 1);
-
-      if (velocityX > velocityThreshold &&
-          targetIndex <= currentIndex &&
-          currentIndex < itemCount - 1) {
-        targetIndex = currentIndex + 1;
-      } else if (velocityX < -velocityThreshold &&
-          targetIndex >= currentIndex &&
-          currentIndex > 0) {
-        targetIndex = currentIndex - 1;
-      }
-
-      return targetIndex;
-    }
-
-    // Low velocity - snap to nearest
+    // Position-only snapping: ignore velocity entirely so a fast flick cannot
+    // overshoot past the tab the finger is actually over. The user must drag
+    // the indicator to the target tab themselves.
     return (currentRelativeX / itemWidth).round().clamp(0, itemCount - 1);
   }
 }
