@@ -459,6 +459,7 @@ class _GlassBottomBarState extends State<GlassBottomBar> {
     final glassSettings = widget.glassSettings ?? _defaultGlassSettings;
 
     return AdaptiveLiquidGlassLayer(
+      shape: LiquidRoundedSuperellipse(borderRadius: widget.barBorderRadius),
       settings: glassSettings,
       quality: effectiveQuality,
       blendAmount:
@@ -751,7 +752,7 @@ class _BottomBarTab extends StatelessWidget {
               // Icon with optional glow effect
               ExcludeSemantics(
                 child: Stack(
-                  clipBehavior: Clip.none,
+                  clipBehavior: Clip.hardEdge,
                   children: [
                     // Animated glow effect (if glowColor is provided)
                     if (tab.glowColor != null)
@@ -1068,7 +1069,7 @@ class _TabIndicatorState extends State<_TabIndicator> {
 
     // AnimatedGlassIndicator multiplies by 2 for the glass superellipse shape,
     // but uses the value directly for the background DecoratedBox.
-    final backgroundRadius = widget.barBorderRadius * 2; // 64
+    final backgroundRadius = widget.barBorderRadius; // bar ile aynı radius
     final glassRadius =
         widget.barBorderRadius; // 32 → becomes 64 after internal *2
 
@@ -1172,7 +1173,7 @@ class _TabIndicatorState extends State<_TabIndicator> {
     return SizedBox(
       height: widget.barHeight,
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.hardEdge,
         children: [
           // Glass background with all tabs
           Positioned.fill(
@@ -1222,7 +1223,7 @@ class _TabIndicatorState extends State<_TabIndicator> {
     return SizedBox(
       height: widget.barHeight,
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.hardEdge,
         children: [
           // 1. Glass Background Layer with ALL content
           // This provides the glass visual/refraction for everything
@@ -1231,7 +1232,7 @@ class _TabIndicatorState extends State<_TabIndicator> {
               quality: widget.quality,
               shape: _barShape,
               child: Stack(
-                clipBehavior: Clip.none,
+                clipBehavior: Clip.hardEdge,
                 children: [
                   // 2. Unselected Content Layer (inverse clipped)
                   ClipPath(

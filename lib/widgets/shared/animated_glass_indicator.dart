@@ -136,7 +136,7 @@ class AnimatedGlassIndicator extends StatelessWidget {
     // 2. Glass Indicator (Active/Dragging state)
     final glassOpacity = thickness.clamp(0.0, 1.0);
     final shape = useSuperellipse
-        ? LiquidRoundedSuperellipse(borderRadius: borderRadius * 2)
+        ? LiquidRoundedSuperellipse(borderRadius: borderRadius)
         : LiquidRoundedRectangle(borderRadius: borderRadius);
 
     final indicatorSettings = glassSettings ?? _baseGlassSettings;

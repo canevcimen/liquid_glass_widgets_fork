@@ -272,21 +272,32 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
           matrix4: geometry.$3.storage,
         );
       }
-      _clipPathLayerHandle.layer = context.pushClipPath(
+      // Intersect with boundingBox to prevent blur from leaking outside bar bounds
+      final boundingPath = Path()..addRect(boundingBox);
+      final clippedPath = Path.combine(PathOperation.intersect, clipPath, boundingPath);
+      context.pushClipRect(
         needsCompositing,
         offset,
         boundingBox,
-        clipPath,
         (context, offset) {
-          context.pushLayer(
-            blurLayer,
-            (context, offset) {
-              paintShapeContents(context, offset, shapes, insideGlass: true);
-            },
+          context.pushClipPath(
+            needsCompositing,
             offset,
+            boundingBox,
+            clippedPath,
+            (context, offset) {
+              context.pushLayer(
+                blurLayer,
+                (context, offset) {
+                  paintShapeContents(context, offset, shapes, insideGlass: true);
+                },
+                offset,
+              );
+            },
+            oldLayer: _clipPathLayerHandle.layer,
           );
         },
-        oldLayer: _clipPathLayerHandle.layer,
+        oldLayer: _clipRectLayerHandle.layer,
       );
     } else {
       _blurLayerHandle.layer = null;
