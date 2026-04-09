@@ -815,19 +815,21 @@ class _BottomBarTab extends StatelessWidget {
               ),
 
               if (tab.label != null)
-                // Label text
+                // Label text. The label always reflects the selection-aware
+                // [iconColor]; any caller-supplied [textStyle] is merged on
+                // top so font size / weight can be customised without
+                // overriding the per-state colour.
                 Text(
                   tab.label!,
                   maxLines: 1,
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
-                  style: textStyle ??
-                      TextStyle(
-                        color: iconColor,
-                        fontSize: 11,
-                        fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w500,
-                      ),
+                  style: TextStyle(
+                    color: iconColor,
+                    fontSize: 11,
+                    fontWeight:
+                        selected ? FontWeight.w600 : FontWeight.w500,
+                  ).merge(textStyle?.copyWith(color: iconColor)),
                 ),
             ],
           ),
