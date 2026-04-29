@@ -119,6 +119,7 @@ class GlassTabBar extends StatefulWidget {
     this.indicatorBorderRadius,
     this.indicatorSettings,
     this.backgroundKey,
+    this.indicatorExpansion = 8.0,
   })  : assert(tabs.length >= 2, 'GlassTabBar requires at least 2 tabs'),
         assert(
           selectedIndex >= 0 && selectedIndex < tabs.length,
@@ -193,6 +194,10 @@ class GlassTabBar extends StatefulWidget {
 
   /// Optional background key for Skia/Web refraction.
   final GlobalKey? backgroundKey;
+
+  /// How much the indicator expands during press/drag.
+  /// Defaults to 8.0. Use smaller values for a subtler effect.
+  final double indicatorExpansion;
 
   @override
   State<GlassTabBar> createState() => _GlassTabBarState();
@@ -289,6 +294,7 @@ class _GlassTabBarState extends State<GlassTabBar> {
         indicatorBorderRadius: widget.indicatorBorderRadius,
         indicatorSettings: widget.indicatorSettings,
         backgroundKey: widget.backgroundKey,
+        indicatorExpansion: widget.indicatorExpansion,
       ),
     );
 
@@ -326,6 +332,7 @@ class _TabBarContent extends StatefulWidget {
     this.indicatorBorderRadius,
     this.indicatorSettings,
     this.backgroundKey,
+    this.indicatorExpansion = 8.0,
   });
 
   final List<GlassTab> tabs;
@@ -344,6 +351,7 @@ class _TabBarContent extends StatefulWidget {
   final BorderRadius? indicatorBorderRadius;
   final LiquidGlassSettings? indicatorSettings;
   final GlobalKey? backgroundKey;
+  final double indicatorExpansion;
 
   @override
   State<_TabBarContent> createState() => _TabBarContentState();
@@ -525,6 +533,7 @@ class _TabBarContentState extends State<_TabBarContent> {
                     borderRadius: widget.indicatorBorderRadius?.topLeft.x ?? 16,
                     glassSettings: widget.indicatorSettings,
                     backgroundKey: widget.backgroundKey,
+                    expansion: widget.indicatorExpansion,
                   ),
 
                   child!,
