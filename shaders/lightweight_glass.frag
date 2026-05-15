@@ -42,8 +42,8 @@ const float kBodyAmbientBoost     = 0.1;   // Ambient light contribution to body
 const float kCompositeRimAlpha    = 0.8;   // Rim-to-body blend strength at edges
 
 // Light Intensity Response (how uLightIntensity modulates appearance)
-const float kMinRimVisibility     = 0.5;   // Minimum rim brightness (prevents invisible shapes)
-const float kRimIntensityScale    = 0.6;   // Rim sensitivity to light intensity changes
+const float kMinRimVisibility     = 0.15;  // Minimum rim brightness (low = more directional contrast)
+const float kRimIntensityScale    = 0.8;   // Rim sensitivity to light intensity changes
 const float kBodyIntensityScale   = 0.15;  // Body sensitivity to light intensity changes
 
 // Thickness Response (how uThickness affects glass appearance)
