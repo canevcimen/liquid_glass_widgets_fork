@@ -249,10 +249,23 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
   ) {
     if (!attached) return;
 
+    // ── Build shape clip path (shared by Pass 1 & Pass 2) ──────────────────
+    final clipPath = Path();
+    for (final geometry in shapes) {
+      if (!geometry.$1.attached) continue;
+      clipPath.addPath(
+        geometry.$2.path,
+        Offset.zero,
+        matrix4: geometry.$3.storage,
+      );
+    }
+    final boundingPath = Path()..addRect(boundingBox);
+    final clippedPath = Path.combine(PathOperation.intersect, clipPath, boundingPath);
+
     // ── Pass 1: Blur ─────────────────────────────────────────────────────────
     // Use Flutter's native ImageFilter.blur for smooth, multi-pass Gaussian
     // quality (the inline 9-tap shader approximation was pixelated with text).
-    // Clip tightly to the actual pill shape path — no expansion needed here.
+    // Clip tightly to the actual shape path — no expansion needed here.
     if (settings.effectiveBlur > 0) {
       final blurLayer = (_blurLayerHandle.layer ??= BackdropFilterLayer())
         ..backdropKey =
@@ -263,45 +276,21 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
           sigmaY: settings.effectiveBlur,
         );
 
-      final clipPath = Path();
-      for (final geometry in shapes) {
-        if (!geometry.$1.attached) continue;
-        clipPath.addPath(
-          geometry.$2.path,
-          Offset.zero,
-          matrix4: geometry.$3.storage,
-        );
-      }
-      // Intersect with boundingBox to prevent blur from leaking outside bar bounds
-      final boundingPath = Path()..addRect(boundingBox);
-      final clippedPath = Path.combine(PathOperation.intersect, clipPath, boundingPath);
-      // Use the shape path's tight bounds instead of the full layer boundingBox
-      // so BackdropFilterLayer captures from a smaller rect, preventing
-      // visible square blur artifacts on circular/oval shapes.
-      final shapeBounds = clippedPath.getBounds();
-      context.pushClipRect(
+      context.pushClipPath(
         needsCompositing,
         offset,
-        shapeBounds,
+        boundingBox,
+        clippedPath,
         (context, offset) {
-          context.pushClipPath(
-            needsCompositing,
-            offset,
-            shapeBounds,
-            clippedPath,
+          context.pushLayer(
+            blurLayer,
             (context, offset) {
-              context.pushLayer(
-                blurLayer,
-                (context, offset) {
-                  paintShapeContents(context, offset, shapes, insideGlass: true);
-                },
-                offset,
-              );
+              paintShapeContents(context, offset, shapes, insideGlass: true);
             },
-            oldLayer: _clipPathLayerHandle.layer,
+            offset,
           );
         },
-        oldLayer: _clipRectLayerHandle.layer,
+        oldLayer: _clipPathLayerHandle.layer,
       );
     } else {
       _blurLayerHandle.layer = null;
@@ -324,17 +313,27 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
     final shaderLayer = (_shaderHandle.layer ??= BackdropFilterLayer())
       ..filter = ImageFilter.shader(renderShader);
 
+    // Clip to shape path so the glass shader doesn't leak outside
+    // circular/oval shapes into the rectangular bounding box.
     _clipRectLayerHandle.layer = context.pushClipRect(
       needsCompositing,
       offset,
       clipRect,
       (context, offset) {
-        context.pushLayer(
-          shaderLayer,
-          (context, offset) {
-            paintShapeContents(context, offset, shapes, insideGlass: false);
-          },
+        context.pushClipPath(
+          needsCompositing,
           offset,
+          clipRect,
+          clippedPath,
+          (context, offset) {
+            context.pushLayer(
+              shaderLayer,
+              (context, offset) {
+                paintShapeContents(context, offset, shapes, insideGlass: false);
+              },
+              offset,
+            );
+          },
         );
       },
       oldLayer: _clipRectLayerHandle.layer,
