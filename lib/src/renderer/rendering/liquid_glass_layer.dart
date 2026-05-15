@@ -275,15 +275,19 @@ class RenderLiquidGlassLayer extends LiquidGlassRenderObject
       // Intersect with boundingBox to prevent blur from leaking outside bar bounds
       final boundingPath = Path()..addRect(boundingBox);
       final clippedPath = Path.combine(PathOperation.intersect, clipPath, boundingPath);
+      // Use the shape path's tight bounds instead of the full layer boundingBox
+      // so BackdropFilterLayer captures from a smaller rect, preventing
+      // visible square blur artifacts on circular/oval shapes.
+      final shapeBounds = clippedPath.getBounds();
       context.pushClipRect(
         needsCompositing,
         offset,
-        boundingBox,
+        shapeBounds,
         (context, offset) {
           context.pushClipPath(
             needsCompositing,
             offset,
-            boundingBox,
+            shapeBounds,
             clippedPath,
             (context, offset) {
               context.pushLayer(
