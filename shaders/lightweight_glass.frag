@@ -34,8 +34,8 @@ const float kSpecularPowerKick    = 20.0;  // Back-surface reflection sharpness 
 const float kKickIntensity        = 0.4;   // Back-surface brightness relative to primary
 
 // Rim & Body Color Balance
-const float kRimBaseOpacity       = 0.4;   // Base rim brightness before light modulation
-const float kRimSpecularMix       = 0.6;   // How much specular highlights boost rim
+const float kRimBaseOpacity       = 0.15;  // Base rim brightness before light modulation (low = more directional)
+const float kRimSpecularMix       = 0.85;  // How much specular highlights boost rim (high = brighter lit edges)
 const float kRimAlphaBase         = 0.8;   // Base rim opacity (calibrated to Impeller parity)
 const float kRimAlphaSpecular     = 0.5;   // Additional opacity from specular highlights
 const float kBodyAmbientBoost     = 0.1;   // Ambient light contribution to body layer
